@@ -159,13 +159,13 @@ const disabledFeatures = [
 	// "always_show_study_symbol_input_values_in_legend"
 ];
 const minimalDisabledFeatures = [
-	"header_widget",
-	"legend_inplace_edit",
-	"trading_account_manager",
-	"symbol_search_hot_key",
-	"header_symbol_search",
-	"header_compare",
-	"left_toolbar",
+	// "header_widget",
+	// "legend_inplace_edit",
+	// "trading_account_manager",
+	// "symbol_search_hot_key",
+	// "header_symbol_search",
+	// "header_compare",
+	// "left_toolbar",
 	"right_toolbar",
 ]
 

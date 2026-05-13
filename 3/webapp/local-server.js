@@ -120,7 +120,7 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    let filePath = path.join(WEBAPP_DIR, url === '/' ? 'index.html' : url);
+    let filePath = path.join(WEBAPP_DIR, url === '/' ? 'symbols/index.html' : url);
 
     // If the URL doesn't have an extension and is not root, check if it's a symbol
     const extName = path.extname(url);
