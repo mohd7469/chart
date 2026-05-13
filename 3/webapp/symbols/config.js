@@ -1,18 +1,3 @@
-// disabledFeatures: [
-// 	"header_widget",
-// 	"legend_inplace_edit",
-// 	"trading_account_manager",
-// 	"symbol_search_hot_key",
-// 	"header_symbol_search",
-// 	"header_compare",
-// 	"left_toolbar",
-// 	"right_toolbar",
-// 	"control_bar",
-// 	"timeframes_toolbar",
-// 	"edit_buttons_in_legend",
-// 	"context_menus"
-// ]
-
 const availableIntervals = [
 	'1', '3', '5', '15', '30', '60', '240', '1D', '1W'
 ];
@@ -173,9 +158,24 @@ const disabledFeatures = [
 	"chart_drag_export",
 	// "always_show_study_symbol_input_values_in_legend"
 ];
+const minimalDisabledFeatures = [
+	"header_widget",
+	"legend_inplace_edit",
+	"trading_account_manager",
+	"symbol_search_hot_key",
+	"header_symbol_search",
+	"header_compare",
+	"left_toolbar",
+	"right_toolbar",
+	"control_bar",
+	"timeframes_toolbar",
+	"edit_buttons_in_legend",
+	"context_menus"
+]
 
 export {
 	availableIntervals,
 	availableIndicators,
-	disabledFeatures
+	disabledFeatures,
+	minimalDisabledFeatures
 };
