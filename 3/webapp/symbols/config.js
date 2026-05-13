@@ -167,10 +167,6 @@ const minimalDisabledFeatures = [
 	"header_compare",
 	"left_toolbar",
 	"right_toolbar",
-	"control_bar",
-	"timeframes_toolbar",
-	"edit_buttons_in_legend",
-	"context_menus"
 ]
 
 export {
