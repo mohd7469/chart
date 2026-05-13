@@ -32,7 +32,7 @@
 	<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
 	<script type="module">
-		import { availableIndicators, availableIntervals, minimalDisabledFeatures } from 'https://cdn.jsdelivr.net/gh/mohd7469/chart@main/3/webapp/symbols/config.js';
+		import { availableIndicators } from 'https://cdn.jsdelivr.net/gh/mohd7469/chart@main/3/webapp/symbols/config.js';
 
 		window.isAutoSwitchEnabled = window.location.host === 'localhost:8080'; // only true for 8080
 		window.TVConfig = {
@@ -43,7 +43,16 @@
 				interval: '60',
 				indicators: availableIndicators
 			}],
-			disabledFeatures: minimalDisabledFeatures
+			disabledFeatures: [
+				// "header_widget",
+				// "legend_inplace_edit",
+				// "trading_account_manager",
+				// "symbol_search_hot_key",
+				// "header_symbol_search",
+				// "header_compare",
+				// "left_toolbar",
+				"right_toolbar",
+			]
 		}
 	</script>
 

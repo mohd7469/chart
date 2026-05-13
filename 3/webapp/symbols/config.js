@@ -166,7 +166,7 @@ const minimalDisabledFeatures = [
 	// "header_symbol_search",
 	// "header_compare",
 	// "left_toolbar",
-	"right_toolbar",
+	// "right_toolbar",
 ]
 
 export {
