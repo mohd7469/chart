@@ -13,15 +13,15 @@
 // 	"context_menus"
 // ]
 
-export const avaiableIntervals = [
+export const availableIntervals = [
 	'1', '3', '5', '15', '30', '60', '240', '1D', '1W'
 ];
-export const avaiableIndicators = [
+export const availableIndicators = [
 	{
 		name: 'Relative Strength Index',
 		inputs: [14]
 	}
-]
+];
 export const disabledFeatures = [
 	"trading_account_manager",
 	"right_toolbar",

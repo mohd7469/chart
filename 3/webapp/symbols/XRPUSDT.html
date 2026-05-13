@@ -32,17 +32,17 @@
 	<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
 	<script type="module">
-		import { avaiableIntervals, avaiableIndicators, disabledFeatures } from './config.js';
+		import { availableIntervals, availableIndicators, disabledFeatures } from './config.js';
 
 		window.isAutoSwitchEnabled = window.location.host === 'localhost:8080'; // only true for 8080
 		window.TVConfig = {
 			candleRange: 5,
 			symbols: [
-				...avaiableIntervals.map(tf => ({
+				...availableIntervals.map(tf => ({
 					symbol: 'BINANCE:XRPUSDT.P',
 					chartType: 'candles',
 					interval: tf,
-					indicators: avaiableIndicators
+					indicators: availableIndicators
 				})),
 			],
 			disabledFeatures: disabledFeatures
