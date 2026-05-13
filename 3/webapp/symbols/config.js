@@ -13,16 +13,16 @@
 // 	"context_menus"
 // ]
 
-export const availableIntervals = [
+const availableIntervals = [
 	'1', '3', '5', '15', '30', '60', '240', '1D', '1W'
 ];
-export const availableIndicators = [
+const availableIndicators = [
 	{
 		name: 'Relative Strength Index',
 		inputs: [14]
 	}
 ];
-export const disabledFeatures = [
+const disabledFeatures = [
 	"trading_account_manager",
 	"right_toolbar",
 	"items_favoriting",
@@ -173,3 +173,9 @@ export const disabledFeatures = [
 	"chart_drag_export",
 	// "always_show_study_symbol_input_values_in_legend"
 ];
+
+export {
+	availableIntervals,
+	availableIndicators,
+	disabledFeatures
+};
