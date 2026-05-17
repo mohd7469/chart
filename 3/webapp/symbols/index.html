@@ -758,6 +758,7 @@
 							chart.setSymbol(symbol, () => {
 								chart.setResolution(interval);
 								chart.setChartType(chartDisplayTypes[chartType]);
+								chart.applyOverrides({ "mainSeriesProperties.showCountdown": true });
 
 								if (indicators) {
 									indicators.forEach(ind => {
