@@ -90,7 +90,7 @@ const disabledFeatures = [
 	"chart_property_page_scales",
 	"chart_property_page_trading",
 	"chart_property_page_right_margin_editor",
-	"countdown",
+	// "countdown",
 	"dont_show_boolean_study_arguments",
 	"hide_last_na_study_output",
 	"symbol_info",
