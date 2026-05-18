@@ -3,6 +3,10 @@ const availableIntervals = [
 ];
 const availableIndicators = [
 	{
+		name: 'Volume',
+		inputs: []
+	},
+	{
 		name: 'Relative Strength Index',
 		inputs: [14]
 	}
