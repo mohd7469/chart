@@ -32,7 +32,7 @@
 	<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
 	<script type="module">
-		import { availableIndicators, syncDrawing } from 'https://cdn.jsdelivr.net/gh/mohd7469/chart@main/3/webapp/symbols/config.js';
+		import { availableIndicators } from 'https://cdn.jsdelivr.net/gh/mohd7469/chart@main/3/webapp/symbols/config.js';
 
 		window.isAutoSwitchEnabled = window.location.host === 'localhost:8080'; // only true for 8080
 		window.TVConfig = {
@@ -745,8 +745,6 @@
 			}
 
 			widget.onChartReady(async () => {
-				// Initialize Cross-Tab Drawing Sync
-				syncDrawing(widget);
 
 				// 1. Initial Layout set karein
 				const layout = config.symbols.length + 'h'; // getLayoutValue(config.symbols.length)
@@ -766,15 +764,63 @@
 								chart.applyOverrides({ "mainSeriesProperties.showCountdown": true });
 
 								if (indicators) {
-									indicators.forEach(ind => {
-										const inputs = ind.inputs || [];
-										chart.createStudy(
-											ind.name,
-											false,    // forceOverlay
-											false,    // lock
-											inputs
-										);
-									});
+									// indicators.forEach(ind => {
+									// 	const inputs = ind.inputs || [];
+									// 	chart.createStudy(
+									// 		ind.name,
+									// 		false,    // forceOverlay
+									// 		false,    // lock
+									// 		inputs
+									// 	);
+									// });
+									Promise.all(
+										indicators.map(ind => {
+											const inputs = ind.inputs || [];
+											return chart.createStudy(
+												ind.name,
+												false,    // forceOverlay
+												false,    // lock
+												inputs
+											);
+										})
+									).then(() => {
+										const setPaneHeights = (attempts = 0, lastHeight = -1) => {
+											try {
+												const panes = chart.getPanes();
+												if (!panes || panes.length <= 1) return;
+
+												const totalHeight = panes.reduce((sum, p) => sum + p.getHeight(), 0);
+
+												// Retry if height is invalid or still changing (layout not settled)
+												if (totalHeight < 100 || totalHeight !== lastHeight) {
+													if (attempts < 15) setTimeout(() => setPaneHeights(attempts + 1, totalHeight), 400);
+													return;
+												}
+
+												let indHeight = 60;
+												let mainHeight = totalHeight - (panes.length - 1) * indHeight;
+
+												// Agar unlimited indicators lag jayein aur jagah kam parh jaye
+												if (mainHeight < 100) {
+													mainHeight = 100; // Main pane ko kam se kam 100px dena hai
+													indHeight = Math.floor((totalHeight - 100) / (panes.length - 1)); // Baaki jagah indicators me baant do
+												}
+
+												panes[0].setHeight(mainHeight);
+
+												// Wait for main pane to resize before sizing indicators
+												setTimeout(() => {
+													for (let p = 1; p < panes.length; p++) {
+														try { panes[p].setHeight(indHeight); } catch (e) { }
+													}
+												}, 600);
+											} catch (e) {
+												console.error("Error resizing panes:", e);
+											}
+										};
+
+										setTimeout(setPaneHeights, 800);
+									}).catch(err => console.error("Error creating studies:", err));
 								}
 							});
 
