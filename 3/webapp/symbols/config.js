@@ -1,6 +1,7 @@
 const availableIntervals = [
 	'1', '3', '5', '15', '30', '60', '240', '1D', '1W'
 ];
+
 const availableIndicators = [
 	{
 		name: 'Volume',
@@ -11,6 +12,7 @@ const availableIndicators = [
 		inputs: [14]
 	}
 ];
+
 const disabledFeatures = [
 	"trading_account_manager",
 	"right_toolbar",
@@ -162,6 +164,7 @@ const disabledFeatures = [
 	"chart_drag_export",
 	// "always_show_study_symbol_input_values_in_legend"
 ];
+
 const minimalDisabledFeatures = [
 	// "header_widget",
 	// "legend_inplace_edit",
@@ -233,7 +236,7 @@ const syncDrawing = (widget) => {
 		});
 	}
 
-	// 1a. Detect drawing events (create, move, remove) — immediate sync
+	// Detect drawing events (create, move, remove) — immediate sync
 	widget.subscribe('drawing_event', (id, eventType) => {
 		if (window.isApplyingRemoteDrawings) return;
 		if (eventType === 'click') return; // skip click events
@@ -244,14 +247,14 @@ const syncDrawing = (widget) => {
 		}, 300);
 	});
 
-	// 1b. Polling: catches property changes (color, width, resize, etc.) that drawing_event does NOT fire for
+	// Polling: catches property changes (color, width, resize, etc.) that drawing_event does NOT fire for
 	if (window._drawSyncInterval) clearInterval(window._drawSyncInterval);
 	window._drawSyncInterval = setInterval(() => {
 		if (window.isApplyingRemoteDrawings) return;
 		broadcastDrawings();
 	}, 2000);
 
-	// 2. Receive drawings from other tabs and apply them
+	// Receive drawings from other tabs and apply them
 	window.drawingChannel.onmessage = (e) => {
 		const data = e.data;
 		if (!data || data.type !== 'drawings_update') return;
