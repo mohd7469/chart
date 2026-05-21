@@ -1,5 +1,5 @@
 const availableIntervals = [
-	'1', '3', '5', '15', '30', '60', '240', '1D', '1W'
+	'1', '3', '5', '15', '30', '60', '240', '1D'
 ];
 
 const availableIndicators = [
