@@ -173,9 +173,137 @@ const minimalDisabledFeatures = [
 	// "right_toolbar",
 ]
 
+const syncDrawing = (widget) => {
+	// --- Cross-Tab Drawing Sync Setup ---
+
+	// Unique tab ID (stable for this tab's lifetime)
+	window.TV_TAB_ID = window.TV_TAB_ID || (Date.now() + '_' + Math.random().toString(36).substr(2, 9));
+
+	// Shared BroadcastChannel — all same-origin tabs share this
+	if (!window.drawingChannel) {
+		window.drawingChannel = new BroadcastChannel('tradingview_drawings_sync');
+	}
+
+	// Guard flag: prevents re-broadcasting drawings we received from another tab
+	window.isApplyingRemoteDrawings = false;
+
+	// Last broadcasted snapshot (for change detection in polling)
+	window._lastDrawingSnapshot = window._lastDrawingSnapshot || '';
+
+	// Snapshot all shapes from all charts into a serializable array
+	function snapshotAllShapes() {
+		const allChartsShapes = [];
+		for (let i = 0; i < widget.chartsCount(); i++) {
+			const chart = widget.chart(i);
+			const shapes = chart.getAllShapes();
+			const shapesData = [];
+
+			for (const shape of shapes) {
+				try {
+					const api = chart.getShapeById(shape.id);
+					if (api) {
+						shapesData.push({
+							name: shape.name,
+							points: api.getPoints(),
+							overrides: api.getProperties()
+						});
+					}
+				} catch (e) { /* shape may have been deleted mid-loop */ }
+			}
+			allChartsShapes.push(shapesData);
+		}
+		return allChartsShapes;
+	}
+
+	// Broadcast current shapes to all other tabs
+	function broadcastDrawings() {
+		if (window.isApplyingRemoteDrawings) return;
+
+		const allChartsShapes = snapshotAllShapes();
+		const snapshot = JSON.stringify(allChartsShapes);
+
+		// Only broadcast if something actually changed
+		if (snapshot === window._lastDrawingSnapshot) return;
+		window._lastDrawingSnapshot = snapshot;
+
+		window.drawingChannel.postMessage({
+			type: 'drawings_update',
+			sender: window.TV_TAB_ID,
+			charts: allChartsShapes
+		});
+	}
+
+	// 1a. Detect drawing events (create, move, remove) — immediate sync
+	widget.subscribe('drawing_event', (id, eventType) => {
+		if (window.isApplyingRemoteDrawings) return;
+		if (eventType === 'click') return; // skip click events
+
+		clearTimeout(window._drawSyncDebounce);
+		window._drawSyncDebounce = setTimeout(() => {
+			broadcastDrawings();
+		}, 300);
+	});
+
+	// 1b. Polling: catches property changes (color, width, resize, etc.) that drawing_event does NOT fire for
+	if (window._drawSyncInterval) clearInterval(window._drawSyncInterval);
+	window._drawSyncInterval = setInterval(() => {
+		if (window.isApplyingRemoteDrawings) return;
+		broadcastDrawings();
+	}, 2000);
+
+	// 2. Receive drawings from other tabs and apply them
+	window.drawingChannel.onmessage = (e) => {
+		const data = e.data;
+		if (!data || data.type !== 'drawings_update') return;
+		if (data.sender === window.TV_TAB_ID) return;
+
+		window.isApplyingRemoteDrawings = true;
+
+		for (let i = 0; i < Math.min(widget.chartsCount(), data.charts.length); i++) {
+			try {
+				const chart = widget.chart(i);
+				const remoteShapes = data.charts[i];
+				if (!remoteShapes) continue;
+
+				// Clear existing shapes to prevent duplicates
+				chart.getAllShapes().forEach(shape => {
+					try { chart.removeEntity(shape.id); } catch (e) { }
+				});
+
+				// Recreate each shape from the remote data
+				for (const s of remoteShapes) {
+					try {
+						if (s.points.length > 1) {
+							chart.createMultipointShape(s.points, {
+								shape: s.name,
+								overrides: s.overrides
+							});
+						} else if (s.points.length === 1) {
+							chart.createShape(s.points[0], {
+								shape: s.name,
+								overrides: s.overrides
+							});
+						}
+					} catch (shapeErr) {
+						console.warn('[Drawing Sync] Could not recreate shape:', s.name, shapeErr);
+					}
+				}
+			} catch (err) {
+				console.warn('[Drawing Sync] Error applying to chart', i, err);
+			}
+		}
+
+		// Update local snapshot so polling doesn't re-broadcast what we just received
+		window._lastDrawingSnapshot = JSON.stringify(data.charts);
+
+		setTimeout(() => { window.isApplyingRemoteDrawings = false; }, 1500);
+	};
+}
+
 export {
 	availableIntervals,
 	availableIndicators,
 	disabledFeatures,
-	minimalDisabledFeatures
-};
+	minimalDisabledFeatures,
+	syncDrawing
+}
