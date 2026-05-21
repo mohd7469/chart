@@ -171,6 +171,8 @@
 	</script>
 
 	<script type="module">
+		// import { syncDrawing } from 'https://cdn.jsdelivr.net/gh/mohd7469/chart@master/3/webapp/symbols/config.js';
+
 		// @ts-nocheck
 
 		// Default Enabled Watchlist Volumn Column 
@@ -745,6 +747,8 @@
 			}
 
 			widget.onChartReady(async () => {
+				// Initialize Cross-Tab Drawing Sync
+				// syncDrawing(widget);
 
 				// 1. Initial Layout set karein
 				const layout = config.symbols.length + 'h'; // getLayoutValue(config.symbols.length)
