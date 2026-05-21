@@ -32,7 +32,7 @@
 	<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
 	<script type="module">
-		import { availableIndicators } from 'https://cdn.jsdelivr.net/gh/mohd7469/chart@main/3/webapp/symbols/config.js';
+		import { availableIndicators, syncDrawing } from 'https://cdn.jsdelivr.net/gh/mohd7469/chart@main/3/webapp/symbols/config.js';
 
 		window.isAutoSwitchEnabled = window.location.host === 'localhost:8080'; // only true for 8080
 		window.TVConfig = {
@@ -745,6 +745,9 @@
 			}
 
 			widget.onChartReady(async () => {
+				// Initialize Cross-Tab Drawing Sync
+				syncDrawing(widget);
+
 				// 1. Initial Layout set karein
 				const layout = config.symbols.length + 'h'; // getLayoutValue(config.symbols.length)
 				widget.setLayout(layout);
