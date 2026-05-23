@@ -2,10 +2,12 @@
     "name": "jarvis-tradingview",
     "version": "1.0.0",
     "description": "Pixel-perfect clone of TradingView Terminal",
-    "main": "mirror.js",
+    "main": "3/webapp/server.js",
     "scripts": {
+        "start": "node ./webapp/server.js",
         "predev": "kill-port 8080",
-        "dev": "nodemon ./webapp/local-server.js"
+        "dev": "nodemon ./webapp/server.js",
+        "postinstall": "npx playwright install-deps chromium"
     },
     "keywords": [
         "tradingview",
