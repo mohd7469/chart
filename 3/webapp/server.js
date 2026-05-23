@@ -120,15 +120,33 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    let filePath = path.join(WEBAPP_DIR, url === '/' ? 'symbols/index.html' : url);
+    // --- FULLY DYNAMIC DIRECTORY & ROUTING MIDDLEWARE ---
+    let filePath;
 
-    // If the URL doesn't have an extension and is not root, check if it's a symbol
-    const extName = path.extname(url);
-    if (!extName && url !== '/') {
-        const symbolName = url.substring(1); // remove leading slash
-        const symbolPath = path.join(WEBAPP_DIR, 'symbols', symbolName + '.html');
-        if (fs.existsSync(symbolPath)) {
-            filePath = symbolPath;
+    // URL ko forward slash '/' se todkar khali elements nikal dein
+    const urlParts = url.split('/').filter(part => part.length > 0);
+
+    if (urlParts.length === 0) {
+        // Agar sirf "/" hai, toh default symbols/index.html par bhej dein
+        filePath = path.join(WEBAPP_DIR, 'symbols', 'index.html');
+    } else {
+        const firstFolder = urlParts[0]; // Pehla part hamesha folder name hoga (e.g., 'symbols', 'analysis')
+
+        if (urlParts.length === 1) {
+            // Case: /symbols ya /analysis (Jab sirf folder ka naam likha ho)
+            filePath = path.join(WEBAPP_DIR, firstFolder, 'index.html');
+        } else {
+            // Case: /symbols/BTCUSDT (Folder ke andar mazeed sub-path ho)
+            const remainingPath = urlParts.slice(1).join('/'); // Baaki ka poora path (e.g., 'BTCUSDT')
+            const ext = path.extname(remainingPath);
+
+            if (!ext) {
+                // Agar aakhir mein koi extension nahi hai, toh .html khud lagayein
+                filePath = path.join(WEBAPP_DIR, firstFolder, remainingPath + '.html');
+            } else {
+                // Agar koi static file hai (.js, .css), toh as-is path bana dein
+                filePath = path.join(WEBAPP_DIR, firstFolder, remainingPath);
+            }
         }
     }
 
