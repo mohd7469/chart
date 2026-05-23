@@ -2,7 +2,7 @@
     "name": "jarvis-tradingview",
     "version": "1.0.0",
     "description": "Pixel-perfect clone of TradingView Terminal",
-    "main": "3/webapp/server.js",
+    "main": "./webapp/server.js",
     "scripts": {
         "start": "node ./webapp/server.js",
         "predev": "kill-port 8080",
