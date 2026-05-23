@@ -72,6 +72,7 @@ async function initOnReady() {
     container: "tv_chart_container",
     datafeed: datafeed,
     locale: "en",
+    timezone: "Asia/Karachi",
     enabled_features: [
       'pre_post_market_sessions',
       'subsession_id_properties',
