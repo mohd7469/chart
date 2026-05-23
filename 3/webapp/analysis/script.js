@@ -104,6 +104,21 @@ async function initOnReady() {
     'volume_candles': 19,
   };
 
+  widget.headerReady().then(() => {
+    const button = widget.createButton();
+    button.setAttribute('title', 'Clear Cache & Reset Chart');
+    button.classList.add('apply-common-tooltip');
+
+    // Button styling aur text
+    button.innerHTML = '<span style="text-decoration: underline; color: #ff4d4d; font-weight: bold; cursor: pointer; padding: 0 8px;">Reset</span>';
+
+    // Click Event Listener
+    button.addEventListener('click', () => {
+      localStorage.clear();       // LocalStorage clear karega
+      window.location.reload();   // Page ko reload karega
+    });
+  });
+
   widget.onChartReady(async () => {
     // 1. Initial Layout set karein
     const layout = config.symbols.length + 'h'; // getLayoutValue(config.symbols.length)
