@@ -8,4 +8,4 @@ if %errorlevel% equ 0 (
 )
 
 echo Starting TradingView clone server...
-node local-server.js
+node server.js
