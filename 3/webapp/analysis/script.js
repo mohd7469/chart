@@ -21,10 +21,24 @@ async function initOnReady() {
         symbol: normalizeSymbol,
         chartType: 'candles',
         interval: tf,
-        indicators: []
+        indicators: [
+          {
+            name: 'Volume',
+            inputs: []
+          },
+          {
+            name: 'Relative Strength Index',
+            inputs: [14]
+          }
+        ]
       })),
     ],
-    disabledFeatures: ["order_panel", "trading_account_manager", "right_toolbar"]
+    disabledFeatures: [
+      "order_panel", "trading_account_manager", "right_toolbar",
+      "create_volume_indicator_by_default",
+      "create_volume_indicator_by_default_once",
+      "volume_force_overlay"
+    ]
   }
 
   const waitForTradingView = () => {
@@ -63,6 +77,11 @@ async function initOnReady() {
       'subsession_id_properties',
     ],
     disabled_features: config.disabledFeatures,
+    overrides: {
+      // "mainSeriesProperties.style": 1,
+      "mainSeriesProperties.showCountdown": true,
+      // 'mainSeriesProperties.sessionId': 'extended',
+    },
   }));
 
   const chartDisplayTypes = {
@@ -80,27 +99,88 @@ async function initOnReady() {
   };
 
   widget.onChartReady(async () => {
-    // Set layout to '8h' as requested by user
-    widget.setLayout('8h');
+    // 1. Initial Layout set karein
+    const layout = config.symbols.length + 'h'; // getLayoutValue(config.symbols.length)
+    widget.setLayout(layout);
 
-    // Populate charts with config symbols
-    const maxCharts = config.symbols.length;
-    for (let i = 0; i < maxCharts; i++) {
+    // 2. Initial Charts Setup (Symbols, Indicators etc.)
+    for (let i = 0; i < config.symbols.length; i++) {
       try {
         const chart = widget.chart(i);
+
         if (chart) {
-          const { symbol, interval, chartType } = config.symbols[i];
+          const { symbol, interval, chartType, indicators } = config.symbols[i];
 
           chart.setSymbol(symbol, () => {
             chart.setResolution(interval);
-            chart.setChartType(chartDisplayTypes[chartType] || 1);
+            chart.setChartType(chartDisplayTypes[chartType]);
+            chart.applyOverrides({ "mainSeriesProperties.showCountdown": true });
+
+            if (indicators) {
+              // indicators.forEach(ind => {
+              // 	const inputs = ind.inputs || [];
+              // 	chart.createStudy(
+              // 		ind.name,
+              // 		false,    // forceOverlay
+              // 		false,    // lock
+              // 		inputs
+              // 	);
+              // });
+              Promise.all(
+                indicators.map(ind => {
+                  const inputs = ind.inputs || [];
+                  return chart.createStudy(
+                    ind.name,
+                    false,    // forceOverlay
+                    false,    // lock
+                    inputs
+                  );
+                })
+              ).then(() => {
+                const setPaneHeights = (attempts = 0, lastHeight = -1) => {
+                  try {
+                    const panes = chart.getPanes();
+                    if (!panes || panes.length <= 1) return;
+
+                    const totalHeight = panes.reduce((sum, p) => sum + p.getHeight(), 0);
+
+                    // Retry if height is invalid or still changing (layout not settled)
+                    if (totalHeight < 100 || totalHeight !== lastHeight) {
+                      if (attempts < 15) setTimeout(() => setPaneHeights(attempts + 1, totalHeight), 400);
+                      return;
+                    }
+
+                    let indHeight = 100;
+                    let mainHeight = totalHeight - (panes.length - 1) * indHeight;
+
+                    // Agar unlimited indicators lag jayein aur jagah kam parh jaye
+                    if (mainHeight < 100) {
+                      mainHeight = 100; // Main pane ko kam se kam 100px dena hai
+                      indHeight = Math.floor((totalHeight - 100) / (panes.length - 1)); // Baaki jagah indicators me baant do
+                    }
+
+                    panes[0].setHeight(mainHeight);
+
+                    // Wait for main pane to resize before sizing indicators
+                    setTimeout(() => {
+                      for (let p = 1; p < panes.length; p++) {
+                        try { panes[p].setHeight(indHeight); } catch (e) { }
+                      }
+                    }, 600);
+                  } catch (e) {
+                    console.error("Error resizing panes:", e);
+                  }
+                };
+
+                setTimeout(setPaneHeights, 800);
+              }).catch(err => console.error("Error creating studies:", err));
+            }
           });
 
-          // Wait between chart setups to ensure layout manager processes them correctly (like in BTCUSDT.html)
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
-      } catch (e) {
-        console.error("Error setting chart", i, e);
+      } catch (err) {
+        console.error(`Error setting layout ${i}:`, err);
       }
     }
   });
