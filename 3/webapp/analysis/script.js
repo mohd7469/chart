@@ -34,10 +34,15 @@ async function initOnReady() {
       })),
     ],
     disabledFeatures: [
-      "order_panel", "trading_account_manager", "right_toolbar",
+      'use_localstorage_for_settings',
       "create_volume_indicator_by_default",
       "create_volume_indicator_by_default_once",
-      "volume_force_overlay"
+      "trading_account_manager",
+      "volume_force_overlay",
+      'open_account_manager',
+      "right_toolbar",
+      "order_panel",
+      'dom_widget',
     ]
   }
 
@@ -115,7 +120,6 @@ async function initOnReady() {
           chart.setSymbol(symbol, () => {
             chart.setResolution(interval);
             chart.setChartType(chartDisplayTypes[chartType]);
-            chart.applyOverrides({ "mainSeriesProperties.showCountdown": true });
 
             if (indicators) {
               // indicators.forEach(ind => {
